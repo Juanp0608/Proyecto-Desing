@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard UNAB</title>
+    <link rel="icon" href="https://unab.edu.co/wp-content/uploads/2022/09/cropped-favicon-naranja-32x32.png" sizes="32x32">
+    <link rel="stylesheet" href="styles.css">
+    <script src="app.js"></script>
+</head>
+
+<body>
+<header class="header-unab">
+    <div class="header-left">
+        <img src="https://unab.edu.co/wp-content/uploads/2023/09/logo-universidad-unab.png" width="450" height="142" alt="Quiero ser UNAB" id="logo" data-height-percentage="50" data-actual-width="450" data-actual-height="142" class="unab-logo">
+        <span>Portal Académico</span>
+    </div>
+
+    <div class="header-right">
+        <span data-user-name>Estudiante</span>
+    </div>
+</header>
+
+<div class="dashboard" style="margin-top:92px;">
+    <aside class="sidebar">
+        <h2>UNAB</h2>
+        <ul>
+            <li><a href="dashboard.html">Dashboard</a></li>
+            <li><a href="horas.html">Horas</a></li>
+            <li><a href="lugares.html">Lugares</a></li>
+            <li><a href="https://cosmos.unab.edu.co/" target="_blank" rel="noopener">Ver notas</a></li>
+            <li><a href="perfil.html">Mi perfil</a></li>
+        </ul>
+    </aside>
+
+    <main class="main-content">
+        <div class="topbar">
+            <h2>Panel de Control</h2>
+            <div class="user-box">
+                <div class="avatar" data-user-initials>ES</div>
+                <span data-user-name>Estudiante</span>
+                <button class="btn btn-naranja btn-small" onclick="logoutUser()">Salir</button>
+            </div>
+        </div>
+
+        <section class="hero-unab">
+            <h2>Resumen Académico</h2>
+            <p>Seguimiento acumulado de horas libres por semestre</p>
+
+            <div class="hero-stats">
+                <div>
+                    <strong id="horasCompletadas">0</strong>
+                    <span>Horas completadas</span>
+                </div>
+
+                <div>
+                    <strong>120</strong>
+                    <span>Horas requeridas</span>
+                </div>
+
+                <div>
+                    <strong id="porcentaje">0%</strong>
+                    <span>Progreso total</span>
+                </div>
+            </div>
+        </section>
+
+        <div class="alert" id="alertaHoras">
+            Te faltan 120 horas para completar el requisito.
+        </div>
+
+        <section class="status-box">
+            <h3>Estado del estudiante</h3>
+            <p>Activo</p>
+            <p><span data-user-career>Programa académico</span></p>
+            <p id="estadoHoras">0 / 120 horas completadas</p>
+        </section>
+
+        <section class="cards">
+            <div class="card-pro azul">
+                <h4>Horas Totales</h4>
+                <h2>120</h2>
+                <span>Meta del programa</span>
+            </div>
+
+            <div class="card-pro verde">
+                <h4>Completadas</h4>
+                <h2 id="horasCard">0</h2>
+                <span>Registradas por el estudiante</span>
+            </div>
+
+            <div class="card-pro naranja">
+                <h4>Pendientes</h4>
+                <h2 id="horasPendientes">120</h2>
+                <span>Faltantes</span>
+            </div>
+
+            <div class="card-pro morado">
+                <h4>Actividades</h4>
+                <h2 id="totalActividades">0</h2>
+                <span>Guardadas</span>
+            </div>
+        </section>
+
+        <button class="btn btn-azul action-button" onclick="window.location.href='actividad.html'">
+            Registrar nueva actividad
+        </button>
+
+        <button class="btn btn-naranja action-button notes-button" onclick="window.open('https://cosmos.unab.edu.co/', '_blank', 'noopener')">
+            Ver notas
+        </button>
+
+        <section class="analytics">
+            <div class="analytics-card">
+                <h3>Progreso por categoría</h3>
+
+                <div class="bar">
+                    <div class="bar-info">
+                        <span>Deportivas</span>
+                        <span id="horasDeportivas">0h</span>
+                    </div>
+                    <div class="bar-bg">
+                        <div class="bar-fill" id="barDeportivas"></div>
+                    </div>
+                </div>
+
+                <div class="bar">
+                    <div class="bar-info">
+                        <span>Culturales</span>
+                        <span id="horasCulturales">0h</span>
+                    </div>
+                    <div class="bar-bg">
+                        <div class="bar-fill" id="barCulturales"></div>
+                    </div>
+                </div>
+
+                <div class="bar">
+                    <div class="bar-info">
+                        <span>Bienestar</span>
+                        <span id="horasBienestar">0h</span>
+                    </div>
+                    <div class="bar-bg">
+                        <div class="bar-fill" id="barBienestar"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="analytics-card">
+                <h3>Actividad reciente</h3>
+                <ul class="activity" id="listaActividades"></ul>
+            </div>
+        </section>
+
+        <section class="analytics-card upcoming-card">
+            <h3>Próximas actividades para realizar horas</h3>
+            <div class="upcoming-grid" id="upcomingGrid">
+                <article class="upcoming-item">
+                    <span class="tag tag-sport">Deportiva</span>
+                    <h4>Carrera universitaria</h4>
+                    <p>Viernes 4 de junio</p>
+                    <strong>2 horas</strong>
+                </article>
+
+                <article class="upcoming-item">
+                    <span class="tag tag-culture">Cultural</span>
+                    <h4>Charla beneficios económicos</h4>
+                    <p>Jueves 3 de junio</p>
+                    <strong>1 hora</strong>
+                </article>
+
+                <article class="upcoming-item">
+                    <span class="tag tag-wellness">Bienestar</span>
+                    <h4>Bienestar social y mental</h4>
+                    <p>Miércoles 2 de junio</p>
+                    <strong>3 horas</strong>
+                </article>
+            </div>
+        </section>
+
+    </main>
+</div>
+
+<script>
+const user = getCurrentUser();
+
+if (!user) {
+    alert("Debes iniciar sesión para ver el dashboard.");
+    window.location.href = "login.html";
+}
+
+updateUserLabels();
+
+document.getElementById("upcomingGrid").innerHTML = PLACE_ACTIVITIES.map(activity => `
+    <article class="upcoming-item">
+        <span class="tag ${activity.tagClass}">${activity.etiqueta}</span>
+        <h4>${activity.nombre}</h4>
+        <p>${activity.lugar} - ${activity.fecha}</p>
+        <strong>${activity.horas} horas</strong>
+    </article>
+`).join("");
+
+const actividades = getActivities();
+const lista = document.getElementById("listaActividades");
+const totalRequerido = 120;
+
+let totalHoras = 0;
+let deportivas = 0;
+let culturales = 0;
+let bienestar = 0;
+
+actividades.forEach(act => {
+    const horas = Number(act.horas);
+    const categoria = act.categoria || ACTIVITY_OPTIONS[act.nombre] || "Bienestar";
+
+    totalHoras += horas;
+
+    if (categoria === "Deportivas") {
+        deportivas += horas;
+    } else if (categoria === "Culturales") {
+        culturales += horas;
+    } else {
+        bienestar += horas;
+    }
+});
+
+lista.innerHTML = "";
+actividades.slice(-3).reverse().forEach(act => {
+    const categoria = act.categoria || ACTIVITY_OPTIONS[act.nombre] || "Bienestar";
+    lista.innerHTML += `
+        <li>
+            <strong>${act.nombre}</strong><br>
+            <small>${categoria} - ${act.lugar} - ${act.horas}h</small>
+        </li>
+    `;
+});
+
+if (actividades.length === 0) {
+    lista.innerHTML = "<li>No hay actividad reciente.</li>";
+}
+
+const faltantes = Math.max(totalRequerido - totalHoras, 0);
+const porcentaje = Math.min((totalHoras / totalRequerido) * 100, 100);
+const dep = Math.min((deportivas / totalRequerido) * 100, 100);
+const cul = Math.min((culturales / totalRequerido) * 100, 100);
+const bie = Math.min((bienestar / totalRequerido) * 100, 100);
+
+document.getElementById("horasCompletadas").innerText = totalHoras;
+document.getElementById("horasCard").innerText = totalHoras;
+document.getElementById("horasPendientes").innerText = faltantes;
+document.getElementById("porcentaje").innerText = porcentaje.toFixed(0) + "%";
+document.getElementById("estadoHoras").innerText =
+    `${totalHoras} / ${totalRequerido} horas completadas (${porcentaje.toFixed(0)}%)`;
+document.getElementById("totalActividades").innerText = actividades.length;
+document.getElementById("alertaHoras").innerText = faltantes > 0
+    ? `Te faltan ${faltantes} horas para completar el requisito.`
+    : "Ya completaste el requisito de horas libres.";
+
+document.getElementById("horasDeportivas").innerText = `${deportivas}h (${dep.toFixed(0)}%)`;
+document.getElementById("horasCulturales").innerText = `${culturales}h (${cul.toFixed(0)}%)`;
+document.getElementById("horasBienestar").innerText = `${bienestar}h (${bie.toFixed(0)}%)`;
+
+setTimeout(() => {
+    document.getElementById("barDeportivas").style.width = dep + "%";
+    document.getElementById("barCulturales").style.width = cul + "%";
+    document.getElementById("barBienestar").style.width = bie + "%";
+}, 200);
+
+</script>
+
+</body>
+</html>

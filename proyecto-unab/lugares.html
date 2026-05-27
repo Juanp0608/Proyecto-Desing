@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Lugares UNAB</title>
+    <link rel="icon" href="https://unab.edu.co/wp-content/uploads/2022/09/cropped-favicon-naranja-32x32.png" sizes="32x32">
+    <link rel="stylesheet" href="styles.css">
+    <script src="app.js"></script>
+</head>
+<body>
+
+<header>
+    <img src="https://unab.edu.co/wp-content/uploads/2023/09/logo-universidad-unab.png" width="450" height="142" alt="Quiero ser UNAB" id="logo" data-height-percentage="50" data-actual-width="450" data-actual-height="142" class="unab-logo header-logo">
+    <h2>Lugares de Actividades</h2>
+</header>
+
+<div class="form-container wide-container">
+    <h2>Espacios y actividades disponibles</h2>
+    <p class="page-note">Consulta dónde se realizará cada actividad próxima y cuántas horas puede aportar.</p>
+
+    <div class="places-grid detailed-places" id="placesGrid"></div>
+
+    <section class="contact-card">
+        <h3>Contáctanos</h3>
+        <div class="contact-grid">
+            <div>
+                <span>Centro de contacto:</span>
+                <strong>018000 931170</strong>
+            </div>
+
+            <div>
+                <span>Correo institucional:</span>
+                <strong>contactenos@unab.edu.co</strong>
+            </div>
+
+            <div>
+                <span>Nuestra dirección:</span>
+                <strong>Av 42 #48 - 11, Bucaramanga, Santander</strong>
+            </div>
+        </div>
+    </section>
+
+    <button class="btn btn-azul" onclick="window.location.href='actividad.html'">Registrar actividad</button>
+    <button class="btn btn-naranja secondary-action" onclick="window.location.href='perfil.html'">Mi perfil</button>
+    <p><a href="dashboard.html">Volver al dashboard</a></p>
+</div>
+
+<script>
+if (!getCurrentUser()) {
+    alert("Debes iniciar sesión para consultar los lugares.");
+    window.location.href = "login.html";
+}
+
+function renderPlaces() {
+    const grid = document.getElementById("placesGrid");
+    const todayKey = new Date().toISOString().slice(0, 10);
+
+    grid.innerHTML = PLACE_ACTIVITIES.map(activity => {
+        const registrations = getPlaceActivityRegistrations(
+            activity.id,
+            activity.daily ? todayKey : ""
+        );
+        const available = Math.max(activity.cupos - registrations.length, 0);
+        const disabled = available === 0 ? "disabled" : "";
+        const buttonText = available === 0 ? "Sin cupos" : "Registrarme";
+
+        return `
+            <section class="place-card">
+                ${activity.imagen ? `
+                    <img class="place-image" src="${activity.imagen}" alt="${activity.imagenAlt}" loading="lazy">
+                ` : ""}
+                <h3>${activity.lugar}</h3>
+                <p class="place-address">${activity.direccion}</p>
+                <div class="place-activity">
+                    <span class="tag ${activity.tagClass}">${activity.etiqueta}</span>
+                    <h4>${activity.nombre}</h4>
+                    <p>${activity.fecha}</p>
+                    <div class="activity-meta">
+                        <strong>${activity.horas} horas libres</strong>
+                        <span>${available} de ${activity.cupos} cupos disponibles</span>
+                    </div>
+                    <button class="btn btn-azul place-register-button" onclick="registerPlaceActivity('${activity.id}')" ${disabled}>
+                        ${buttonText}
+                    </button>
+                </div>
+            </section>
+        `;
+    }).join("");
+}
+
+renderPlaces();
+</script>
+
+</body>
+</html>

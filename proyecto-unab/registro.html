@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Registro UNAB</title>
+    <link rel="icon" href="https://unab.edu.co/wp-content/uploads/2022/09/cropped-favicon-naranja-32x32.png" sizes="32x32">
+    <link rel="stylesheet" href="styles.css">
+    <script src="app.js"></script>
+</head>
+<body>
+
+<header>
+    <img src="https://unab.edu.co/wp-content/uploads/2023/09/logo-universidad-unab.png" width="450" height="142" alt="Quiero ser UNAB" id="logo" data-height-percentage="50" data-actual-width="450" data-actual-height="142" class="unab-logo header-logo">
+    <h2>Crear Cuenta UNAB</h2>
+</header>
+
+<div class="form-container">
+    <h2>Registro de Estudiante</h2>
+
+    <div class="form-group">
+        <label>Nombre completo</label>
+        <input type="text" id="nombre" placeholder="Ej: Juan David Pinto">
+    </div>
+
+    <div class="form-group">
+        <label>Código estudiantil</label>
+        <input type="text" id="codigo" placeholder="Ej: 100123456">
+    </div>
+
+    <div class="form-group">
+        <label>Correo institucional</label>
+        <input type="email" id="correo" placeholder="usuario@unab.edu.co">
+    </div>
+
+    <div class="form-group">
+        <label>Carrera</label>
+        <select id="carrera">
+            <option value="">Seleccionar carrera</option>
+            <option>Ingeniería de Sistemas</option>
+            <option>Ingeniería Industrial</option>
+            <option>Ingeniería Mecatrónica</option>
+            <option>Derecho</option>
+            <option>Administración de Empresas</option>
+            <option>Contaduría Pública</option>
+            <option>Psicología</option>
+            <option>Comunicación Social</option>
+            <option>Arquitectura</option>
+            <option>Medicina</option>
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label>Contraseña</label>
+        <input type="password" id="password" placeholder="Mínimo 8 caracteres">
+    </div>
+
+    <div class="form-group">
+        <label>Confirmar contraseña</label>
+        <input type="password" id="confirmar" placeholder="Repite la contraseña">
+    </div>
+
+    <button class="btn btn-naranja" onclick="registrarUsuario()">
+        Crear cuenta
+    </button>
+
+    <p style="text-align:center; margin-top:15px;">
+        <a href="login.html">¿Ya tienes cuenta? Inicia sesión</a>
+    </p>
+</div>
+
+<script>
+function registrarUsuario() {
+    const nombre = document.getElementById("nombre").value.trim();
+    const codigo = document.getElementById("codigo").value.trim();
+    const correo = document.getElementById("correo").value.trim();
+    const carrera = document.getElementById("carrera").value;
+    const password = document.getElementById("password").value;
+    const confirmar = document.getElementById("confirmar").value;
+
+    if (!nombre || !codigo || !correo || !carrera || !password || !confirmar) {
+        alert("Completa todos los datos del registro.");
+        return;
+    }
+
+    if (!correo.endsWith("@unab.edu.co")) {
+        alert("Usa tu correo institucional @unab.edu.co.");
+        return;
+    }
+
+    if (password.length < 8) {
+        alert("La contraseña debe tener al menos 8 caracteres.");
+        return;
+    }
+
+    if (password !== confirmar) {
+        alert("Las contraseñas no coinciden.");
+        return;
+    }
+
+    const users = getUsers();
+    const exists = users.some(user => user.codigo === codigo || user.correo === correo);
+
+    if (exists) {
+        alert("Ya existe un usuario con ese código o correo.");
+        return;
+    }
+
+    const user = { nombre, codigo, correo, carrera, password };
+    users.push(user);
+    saveUsers(users);
+    setCurrentUser(user);
+    saveActivities([]);
+
+    alert("Cuenta creada correctamente.");
+    window.location.href = "dashboard.html";
+}
+</script>
+
+</body>
+</html>

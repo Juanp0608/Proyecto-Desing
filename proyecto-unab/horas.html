@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Horas UNAB</title>
+    <link rel="icon" href="https://unab.edu.co/wp-content/uploads/2022/09/cropped-favicon-naranja-32x32.png" sizes="32x32">
+    <link rel="stylesheet" href="styles.css">
+    <script src="app.js"></script>
+</head>
+<body>
+
+<header>
+    <img src="https://unab.edu.co/wp-content/uploads/2023/09/logo-universidad-unab.png" width="450" height="142" alt="Quiero ser UNAB" id="logo" data-height-percentage="50" data-actual-width="450" data-actual-height="142" class="unab-logo header-logo">
+    <h2>Visualización de Horas</h2>
+</header>
+
+<div class="form-container wide-container">
+    <h2>Resumen de horas</h2>
+
+    <div class="hero-stats hours-summary">
+        <div>
+            <strong id="totalHoras">0</strong>
+            <span>Completadas</span>
+        </div>
+        <div>
+            <strong id="pendientes">120</strong>
+            <span>Pendientes</span>
+        </div>
+        <div>
+            <strong id="porcentajeHoras">0%</strong>
+            <span>Progreso</span>
+        </div>
+    </div>
+
+    <div class="analytics-card flat-card">
+        <h3>Horas por categoría</h3>
+        <p id="detalleHoras">No hay actividades registradas.</p>
+    </div>
+
+    <div class="analytics-card flat-card">
+        <h3>Conteo por semestre</h3>
+        <div id="resumenSemestres" class="semester-grid"></div>
+    </div>
+
+    <div class="analytics-card flat-card monthly-card">
+        <h3>Resumen del mes</h3>
+        <div class="monthly-grid">
+            <div class="monthly-item">
+                <span>Horas realizadas</span>
+                <strong id="horasMes">0</strong>
+            </div>
+            <div class="monthly-item">
+                <span>Actividades realizadas</span>
+                <strong id="actividadesMes">0</strong>
+            </div>
+        </div>
+    </div>
+
+    <section class="tabla-box history-box">
+        <div class="history-header">
+            <h3>Historial completo de actividades</h3>
+
+            <div class="form-group filter-group">
+                <label>Ordenar historial</label>
+                <select id="ordenHistorial" onchange="renderHistorial()">
+                    <option value="reciente">Actividad más reciente</option>
+                    <option value="antigua">Actividad más antigua</option>
+                    <option value="horasMayor">Más horas/créditos</option>
+                    <option value="horasMenor">Menos horas/créditos</option>
+                </select>
+            </div>
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Fecha</th>
+                    <th>Semestre</th>
+                    <th>Actividad</th>
+                    <th>Categoría</th>
+                    <th>Lugar</th>
+                    <th>Horas/Créditos</th>
+                    <th>Estado</th>
+                    <th>Acción</th>
+                </tr>
+            </thead>
+
+            <tbody id="tablaHistorial"></tbody>
+        </table>
+    </section>
+
+    <button class="btn btn-azul" onclick="window.location.href='actividad.html'">Registrar actividad</button>
+    <button class="btn btn-naranja secondary-action" onclick="window.location.href='perfil.html'">Mi perfil</button>
+    <p><a href="dashboard.html">Volver al dashboard</a></p>
+</div>
+
+<script>
+if (!getCurrentUser()) {
+    alert("Debes iniciar sesión para consultar tus horas.");
+    window.location.href = "login.html";
+}
+
+let actividades = getActivities();
+const totals = {
+    Deportivas: 0,
+    Culturales: 0,
+    Bienestar: 0
+};
+const semestres = {};
+const resumenMes = {
+    horas: 0,
+    actividades: 0
+};
+
+function isCurrentMonthActivity(act) {
+    const time = getActivityTime(act);
+    if (!time) return false;
+
+    const fecha = new Date(time);
+    const hoy = new Date();
+
+    return fecha.getMonth() === hoy.getMonth() && fecha.getFullYear() === hoy.getFullYear();
+}
+
+function getActivityTime(act) {
+    if (act.fechaISO) return new Date(act.fechaISO).getTime();
+    if (act.fecha) {
+        const parts = act.fecha.split("/");
+        if (parts.length === 3) {
+            return new Date(Number(parts[2]), Number(parts[1]) - 1, Number(parts[0])).getTime();
+        }
+    }
+    return 0;
+}
+
+actividades.forEach(act => {
+    const categoria = act.categoria || ACTIVITY_OPTIONS[act.nombre] || "Bienestar";
+    const semestre = act.semestre || "2026-I";
+    const horas = Number(act.horas);
+
+    totals[categoria] += horas;
+    semestres[semestre] = (semestres[semestre] || 0) + horas;
+
+    if (isCurrentMonthActivity(act)) {
+        resumenMes.horas += horas;
+        resumenMes.actividades += 1;
+    }
+});
+
+const total = totals.Deportivas + totals.Culturales + totals.Bienestar;
+const pendiente = Math.max(120 - total, 0);
+const porcentaje = Math.min((total / 120) * 100, 100);
+
+document.getElementById("totalHoras").innerText = total;
+document.getElementById("pendientes").innerText = pendiente;
+document.getElementById("porcentajeHoras").innerText = porcentaje.toFixed(0) + "%";
+document.getElementById("detalleHoras").innerText =
+    `Deportivas: ${totals.Deportivas}h | Culturales: ${totals.Culturales}h | Bienestar: ${totals.Bienestar}h`;
+document.getElementById("horasMes").innerText = `${resumenMes.horas}h`;
+document.getElementById("actividadesMes").innerText = resumenMes.actividades;
+
+const resumenSemestres = document.getElementById("resumenSemestres");
+const semestreKeys = Object.keys(semestres).sort();
+
+if (semestreKeys.length === 0) {
+    resumenSemestres.innerHTML = "<p>No hay semestres registrados.</p>";
+} else {
+    semestreKeys.forEach(semestre => {
+        resumenSemestres.innerHTML += `
+            <div class="semester-item">
+                <span>${semestre}</span>
+                <strong>${semestres[semestre]} horas</strong>
+            </div>
+        `;
+    });
+}
+
+function renderHistorial() {
+    const orden = document.getElementById("ordenHistorial").value;
+    const tabla = document.getElementById("tablaHistorial");
+    const ordenadas = actividades.map((act, index) => ({ ...act, index }));
+
+    ordenadas.sort((a, b) => {
+        if (orden === "antigua") return getActivityTime(a) - getActivityTime(b);
+        if (orden === "horasMayor") return Number(b.horas) - Number(a.horas);
+        if (orden === "horasMenor") return Number(a.horas) - Number(b.horas);
+        return getActivityTime(b) - getActivityTime(a);
+    });
+
+    if (ordenadas.length === 0) {
+        tabla.innerHTML = `
+            <tr>
+                <td colspan="8">Aún no tienes actividades registradas.</td>
+            </tr>
+        `;
+        return;
+    }
+
+    tabla.innerHTML = "";
+
+    ordenadas.forEach(act => {
+        const categoria = act.categoria || ACTIVITY_OPTIONS[act.nombre] || "Bienestar";
+        const semestre = act.semestre || "2026-I";
+
+        tabla.innerHTML += `
+            <tr>
+                <td>${act.fecha}</td>
+                <td>${semestre}</td>
+                <td>${act.nombre}</td>
+                <td>${categoria}</td>
+                <td>${act.lugar}</td>
+                <td>${act.horas}h</td>
+                <td class="ok">Guardado</td>
+                <td><button class="delete-button" onclick="eliminarActividad(${act.index})">Eliminar</button></td>
+            </tr>
+        `;
+    });
+}
+
+function eliminarActividad(index) {
+    actividades.splice(index, 1);
+    saveActivities(actividades);
+    location.reload();
+}
+
+renderHistorial();
+</script>
+
+</body>
+</html>

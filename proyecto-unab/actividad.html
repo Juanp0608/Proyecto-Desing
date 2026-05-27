@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Registrar Actividad</title>
+    <link rel="icon" href="https://unab.edu.co/wp-content/uploads/2022/09/cropped-favicon-naranja-32x32.png" sizes="32x32">
+    <link rel="stylesheet" href="styles.css">
+    <script src="app.js"></script>
+</head>
+<body>
+
+<header>
+    <img src="https://unab.edu.co/wp-content/uploads/2023/09/logo-universidad-unab.png" width="450" height="142" alt="Quiero ser UNAB" id="logo" data-height-percentage="50" data-actual-width="450" data-actual-height="142" class="unab-logo header-logo">
+    <h2>Registrar Actividad</h2>
+</header>
+
+<div class="form-container">
+    <h2>Nueva actividad</h2>
+
+    <div class="form-group">
+        <label>Actividad</label>
+        <select id="nombre" onchange="actualizarCategoria()">
+            <option value="">Seleccionar actividad</option>
+            <option>Futbol</option>
+            <option>Padel</option>
+            <option>Servicio bibliotecario</option>
+            <option>Charla</option>
+            <option>Conferencia</option>
+            <option>Concierto</option>
+            <option>Psicologia</option>
+            <option>Convivencia</option>
+            <option>Recreacion</option>
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label>Categoría asignada</label>
+        <input type="text" id="categoria" placeholder="Se asigna automáticamente" readonly>
+    </div>
+
+    <div class="form-group">
+        <label>Lugar</label>
+        <select id="lugar">
+            <option value="">Seleccionar lugar</option>
+            <option>Cancha UNAB</option>
+            <option>Auditorio Mayor</option>
+            <option>Biblioteca</option>
+            <option>Bienestar Universitario</option>
+            <option>Centro de Servicios Universitarios</option>
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label>Horas</label>
+        <select id="horas">
+            <option value="">Seleccionar horas</option>
+            <option value="1">1 hora</option>
+            <option value="2">2 horas</option>
+            <option value="3">3 horas</option>
+            <option value="4">4 horas</option>
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label>Semestre realizado</label>
+        <select id="semestre">
+            <option value="">Seleccionar semestre</option>
+            <option value="2026-I">2026 primer semestre</option>
+            <option value="2026-II">2026 segundo semestre</option>
+            <option value="2027-I">2027 primer semestre</option>
+            <option value="2027-II">2027 segundo semestre</option>
+            <option value="2028-I">2028 primer semestre</option>
+            <option value="2028-II">2028 segundo semestre</option>
+            <option value="2029-I">2029 primer semestre</option>
+            <option value="2029-II">2029 segundo semestre</option>
+            <option value="2030-I">2030 primer semestre</option>
+            <option value="2030-II">2030 segundo semestre</option>
+        </select>
+    </div>
+
+    <button class="btn btn-azul" onclick="guardarActividad()">Guardar actividad</button>
+    <p><a href="dashboard.html">Volver al dashboard</a></p>
+</div>
+
+<script>
+if (!getCurrentUser()) {
+    alert("Debes iniciar sesión para registrar actividades.");
+    window.location.href = "login.html";
+}
+
+function actualizarCategoria() {
+    const nombre = document.getElementById("nombre").value;
+    document.getElementById("categoria").value = ACTIVITY_OPTIONS[nombre] || "";
+}
+
+function guardarActividad() {
+    const nombre = document.getElementById("nombre").value;
+    const categoria = document.getElementById("categoria").value;
+    const lugar = document.getElementById("lugar").value;
+    const horas = document.getElementById("horas").value;
+    const semestre = document.getElementById("semestre").value;
+
+    if (!nombre || !categoria || !lugar || !horas || !semestre) {
+        alert("Selecciona actividad, lugar, horas y semestre.");
+        return;
+    }
+
+    const actividades = getActivities();
+
+    actividades.push({
+        fecha: new Date().toLocaleDateString(),
+        fechaISO: new Date().toISOString(),
+        nombre,
+        categoria,
+        lugar,
+        horas,
+        semestre
+    });
+
+    saveActivities(actividades);
+    alert("Actividad guardada");
+    window.location.href = "dashboard.html";
+}
+</script>
+
+</body>
+</html>

@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Mi Perfil UNAB</title>
+    <link rel="icon" href="https://unab.edu.co/wp-content/uploads/2022/09/cropped-favicon-naranja-32x32.png" sizes="32x32">
+    <link rel="stylesheet" href="styles.css">
+    <script src="app.js"></script>
+</head>
+<body>
+
+<header>
+    <img src="https://unab.edu.co/wp-content/uploads/2023/09/logo-universidad-unab.png" width="450" height="142" alt="Quiero ser UNAB" id="logo" data-height-percentage="50" data-actual-width="450" data-actual-height="142" class="unab-logo header-logo">
+    <h2>Mi Perfil</h2>
+</header>
+
+<div class="form-container wide-container">
+    <section class="profile-header">
+        <div class="avatar profile-avatar" data-user-initials>ES</div>
+        <div>
+            <h2 data-user-name>Estudiante</h2>
+            <p data-user-career>Programa académico</p>
+        </div>
+    </section>
+
+    <section class="profile-grid">
+        <div class="profile-card">
+            <span>Semestre en curso</span>
+            <strong id="semestreActual">2026 primer semestre</strong>
+        </div>
+
+        <div class="profile-card">
+            <span>Número estudiantil</span>
+            <strong id="codigoEstudiante">---</strong>
+        </div>
+
+        <div class="profile-card">
+            <span>Gmail / correo institucional</span>
+            <strong id="correoEstudiante">---</strong>
+        </div>
+    </section>
+
+    <section class="analytics-card flat-card achievements-card">
+        <h3>Logros obtenidos</h3>
+        <div id="listaLogros" class="achievements-grid"></div>
+    </section>
+
+    <section class="analytics-card flat-card password-card">
+        <h3>Cambiar contraseña</h3>
+
+        <div class="form-group">
+            <label>Contraseña actual</label>
+            <input type="password" id="passwordActual" placeholder="Ingresa tu contraseña actual">
+        </div>
+
+        <div class="form-group">
+            <label>Nueva contraseña</label>
+            <input type="password" id="passwordNueva" placeholder="Mínimo 8 caracteres">
+        </div>
+
+        <div class="form-group">
+            <label>Confirmar nueva contraseña</label>
+            <input type="password" id="passwordConfirmar" placeholder="Repite la nueva contraseña">
+        </div>
+
+        <button class="btn btn-azul" onclick="cambiarPassword()">Guardar nueva contraseña</button>
+    </section>
+
+    <div class="profile-actions">
+        <button class="btn btn-naranja secondary-action" onclick="window.location.href='dashboard.html'">Dashboard</button>
+        <button class="btn btn-naranja secondary-action" onclick="window.location.href='horas.html'">Horas</button>
+        <button class="btn btn-naranja secondary-action" onclick="window.location.href='lugares.html'">Lugares</button>
+    </div>
+</div>
+
+<script>
+let user = getCurrentUser();
+
+if (!user) {
+    alert("Debes iniciar sesión para ver tu perfil.");
+    window.location.href = "login.html";
+}
+
+updateUserLabels();
+
+document.getElementById("semestreActual").innerText = getCurrentSemesterLabel();
+document.getElementById("codigoEstudiante").innerText = user.codigo;
+document.getElementById("correoEstudiante").innerText = user.correo;
+
+function renderLogros() {
+    const actividades = getActivities();
+    const totals = {
+        Deportivas: 0,
+        Culturales: 0,
+        Bienestar: 0
+    };
+
+    actividades.forEach(act => {
+        const categoria = act.categoria || ACTIVITY_OPTIONS[act.nombre] || "Bienestar";
+        totals[categoria] += Number(act.horas) || 0;
+    });
+
+    const totalHoras = totals.Deportivas + totals.Culturales + totals.Bienestar;
+    const logros = [
+        {
+            categoria: "Deportivas",
+            titulo: "Lider deportista",
+            porcentaje: totalHoras ? (totals.Deportivas / totalHoras) * 100 : 0
+        },
+        {
+            categoria: "Culturales",
+            titulo: "Líder de Integración Cultural",
+            porcentaje: totalHoras ? (totals.Culturales / totalHoras) * 100 : 0
+        },
+        {
+            categoria: "Bienestar",
+            titulo: "Promotor de Bienestar Universitario",
+            porcentaje: totalHoras ? (totals.Bienestar / totalHoras) * 100 : 0
+        }
+    ].filter(logro => logro.porcentaje > 50);
+
+    const lista = document.getElementById("listaLogros");
+
+    if (logros.length === 0) {
+        lista.innerHTML = `
+            <div class="achievement-empty">
+                Registra más actividades. Los logros se activan cuando una categoría supera el 50% de tus horas realizadas.
+            </div>
+        `;
+        return;
+    }
+
+    lista.innerHTML = logros.map(logro => `
+        <div class="achievement-item">
+            <span>${logro.categoria}</span>
+            <strong>${logro.titulo}</strong>
+            <small>${logro.porcentaje.toFixed(0)}% de tus horas</small>
+        </div>
+    `).join("");
+}
+
+renderLogros();
+
+function cambiarPassword() {
+    const actual = document.getElementById("passwordActual").value;
+    const nueva = document.getElementById("passwordNueva").value;
+    const confirmar = document.getElementById("passwordConfirmar").value;
+
+    if (!actual || !nueva || !confirmar) {
+        alert("Completa todos los campos para cambiar la contraseña.");
+        return;
+    }
+
+    if (actual !== user.password) {
+        alert("La contraseña actual no es correcta.");
+        return;
+    }
+
+    if (nueva.length < 8) {
+        alert("La nueva contraseña debe tener al menos 8 caracteres.");
+        return;
+    }
+
+    if (nueva !== confirmar) {
+        alert("La confirmación no coincide con la nueva contraseña.");
+        return;
+    }
+
+    const users = getUsers();
+    const index = users.findIndex(item => item.codigo === user.codigo);
+
+    if (index === -1) {
+        alert("No se encontró el usuario registrado.");
+        return;
+    }
+
+    users[index].password = nueva;
+    saveUsers(users);
+    setCurrentUser(users[index]);
+    user = users[index];
+
+    document.getElementById("passwordActual").value = "";
+    document.getElementById("passwordNueva").value = "";
+    document.getElementById("passwordConfirmar").value = "";
+
+    alert("Contraseña actualizada correctamente.");
+}
+</script>
+
+</body>
+</html>
